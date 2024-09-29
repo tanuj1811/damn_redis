@@ -70,27 +70,136 @@ Lua Script allows you to run custom scripts directly on the Redis server.
 
 ## Operation Commands
 
-### Basic Commands
+### Must-Know Commands
 
-| **Command** | **Description**                    | **Usage Example**                                |
-|-------------|------------------------------------|-------------------------------------------------|
-| SET         | Sets the value of a key            | `SET mykey "Hello, World!"`                     |
-| GET         | Gets the value of a key            | `GET mykey`                                     |
-| DEL         | Deletes a key                      | `DEL mykey`                                     |
-| EXPIRE      | Sets a timeout on a key            | `EXPIRE mykey 10`                               |
+| **Command**  | **Description**                                                        | **Usage Example**                             |
+|--------------|------------------------------------------------------------------------|-----------------------------------------------|
+| **SET**      | Sets the value of a key.                                               | `SET mykey "value"`                           |
+| **GET**      | Gets the value of a key.                                               | `GET mykey`                                   |
+| **DEL**      | Deletes one or more keys.                                              | `DEL mykey`                                   |
+| **EXPIRE**   | Sets a timeout (TTL) on a key.                                         | `EXPIRE mykey 60`                             |
+| **INCR**     | Increments the value of a key by 1 (used for counters).               | `INCR counter`                                |
+| **KEYS**     | Finds all keys matching a pattern.                                     | `KEYS user*`                                  |
+| **TTL Key**     | Gets the remaining time-to-live of a key.                                     | `TTL key`                                  |
 
-### Other Commands
+
+### Delete Commands
+
+| **Command**  | **Description**                                      | **Usage Example**                             |
+|--------------|------------------------------------------------------|-----------------------------------------------|
+| **DEL**      | Deletes one or more keys                             | `DEL mykey`                                   |
+| **UNLINK**   | Deletes the key(s) in a non-blocking manner          | `UNLINK mykey`                                |
+| **FLUSHDB**  | Removes all keys from the current database           | `FLUSHDB`                                     |
+| **FLUSHALL** | Removes all keys from all databases                  | `FLUSHALL`                                    |
 
 
-### Transactions Commands
+### **String Commands**
 
-| **Command** | **Description**                                      | **Usage Example**                                |
-|-------------|------------------------------------------------------|-------------------------------------------------|
-| MULTI       | Marks the start of a transaction block               | `MULTI`                                         |
-| EXEC        | Executes all commands issued after MULTI             | `SET key1 "val1"`<br>`SET key2 "val2"`<br>`EXEC`|
-| DISCARD     | Discards all commands issued after MULTI             | `MULTI`<br>`SET key1 "val1"`<br>`DISCARD`       |
+| **Command**   | **Description**                        | **Usage Example**                               |
+|---------------|----------------------------------------|-------------------------------------------------|
+| SET           | Sets the string value of a key         | `SET mykey "Hello"`                             |
+| GET           | Gets the value of a key                | `GET mykey`                                     |
+| DEL           | Deletes one or more keys               | `DEL mykey`                                     |
+| EXPIRE        | Sets a timeout on a key                | `EXPIRE mykey 60`                               |
+| TTL           | Gets the time to live (TTL) of a key   | `TTL mykey`                                     |
+| INCR          | Increments the integer value of a key  | `INCR mycounter`                                |
+| DECR          | Decrements the integer value of a key  | `DECR mycounter`                                |
+| APPEND        | Appends a value to the key             | `APPEND mykey "World"`                          |
+| MSET          | Sets multiple keys to multiple values  | `MSET key1 "val1" key2 "val2"`                  |
+| MGET          | Gets the values of multiple keys       | `MGET key1 key2`                                |
 
-### Pub/Sub Commands
+---
+
+### **Hash Commands**
+
+| **Command**   | **Description**                           | **Usage Example**                               |
+|---------------|-------------------------------------------|-------------------------------------------------|
+| HSET          | Sets the value of a field in a hash       | `HSET myhash field1 "Hello"`                    |
+| HGET          | Gets the value of a field in a hash       | `HGET myhash field1`                            |
+| HDEL          | Deletes one or more fields in a hash      | `HDEL myhash field1`                            |
+| HMSET         | Sets multiple fields in a hash            | `HMSET myhash field1 "Hello" field2 "World"`    |
+| HGETALL       | Gets all fields and values in a hash      | `HGETALL myhash`                                |
+| HINCRBY       | Increments the integer value of a field   | `HINCRBY myhash field 5`                        |
+| HLEN          | Gets the number of fields in a hash       | `HLEN myhash`                                   |
+
+---
+
+### **List Commands**
+
+| **Command**   | **Description**                                  | **Usage Example**                               |
+|---------------|--------------------------------------------------|-------------------------------------------------|
+| LPUSH         | Pushes a value onto the head of a list           | `LPUSH mylist "World"`                          |
+| RPUSH         | Pushes a value onto the tail of a list           | `RPUSH mylist "Hello"`                          |
+| LPOP          | Pops a value from the head of a list             | `LPOP mylist`                                   |
+| RPOP          | Pops a value from the tail of a list             | `RPOP mylist`                                   |
+| LRANGE        | Gets a range of elements from a list             | `LRANGE mylist 0 -1`                            |
+| LLEN          | Gets the length of a list                        | `LLEN mylist`                                   |
+| LSET          | Sets the value of an element by index            | `LSET mylist 0 "New Value"`                     |
+| LREM          | Removes elements from a list                     | `LREM mylist 2 "value"`                         |
+
+---
+
+### **Set Commands**
+
+| **Command**   | **Description**                              | **Usage Example**                               |
+|---------------|----------------------------------------------|-------------------------------------------------|
+| SADD          | Adds one or more members to a set            | `SADD myset "Hello"`                            |
+| SREM          | Removes one or more members from a set       | `SREM myset "Hello"`                            |
+| SMEMBERS      | Gets all members in a set                    | `SMEMBERS myset`                                |
+| SISMEMBER     | Checks if a member exists in a set           | `SISMEMBER myset "Hello"`                       |
+| SCARD         | Gets the number of members in a set          | `SCARD myset`                                   |
+| SUNION        | Gets the union of multiple sets              | `SUNION set1 set2`                              |
+| SINTER        | Gets the intersection of multiple sets       | `SINTER set1 set2`                              |
+
+---
+
+### **Sorted Set Commands**
+
+| **Command**   | **Description**                                      | **Usage Example**                               |
+|---------------|------------------------------------------------------|-------------------------------------------------|
+| ZADD          | Adds a member to a sorted set with a score           | `ZADD myzset 1 "one"`                           |
+| ZRANGE        | Gets a range of members in a sorted set              | `ZRANGE myzset 0 -1`                            |
+| ZREM          | Removes a member from a sorted set                   | `ZREM myzset "one"`                             |
+| ZSCORE        | Gets the score of a member in a sorted set           | `ZSCORE myzset "one"`                           |
+| ZINCRBY       | Increments the score of a member in a sorted set     | `ZINCRBY myzset 1 "one"`                        |
+| ZCARD         | Gets the number of members in a sorted set           | `ZCARD myzset`                                  |
+
+---
+
+### **HyperLogLog Commands**
+
+| **Command**   | **Description**                                     | **Usage Example**                               |
+|---------------|-----------------------------------------------------|-------------------------------------------------|
+| PFADD         | Adds elements to a HyperLogLog                      | `PFADD myhll "element1"`                        |
+| PFCOUNT       | Gets the approximate cardinality of the HyperLogLog | `PFCOUNT myhll`                                 |
+| PFMERGE       | Merges multiple HyperLogLogs into one               | `PFMERGE merged_hll hll1 hll2`                  |
+
+---
+
+### **Bitmaps Commands**
+
+| **Command**   | **Description**                        | **Usage Example**                               |
+|---------------|----------------------------------------|-------------------------------------------------|
+| SETBIT        | Sets the bit at a specified offset     | `SETBIT mykey 7 1`                              |
+| GETBIT        | Gets the bit value at a specified offset | `GETBIT mykey 7`                                |
+| BITCOUNT      | Counts the number of set bits          | `BITCOUNT mykey`                                |
+| BITOP         | Performs bitwise operations            | `BITOP AND destkey key1 key2`                   |
+
+---
+
+### **Stream Commands**
+
+| **Command**   | **Description**                              | **Usage Example**                               |
+|---------------|----------------------------------------------|-------------------------------------------------|
+| XADD          | Appends an entry to a stream                 | `XADD mystream * field1 "value1"`               |
+| XREAD         | Reads entries from one or more streams       | `XREAD COUNT 2 STREAMS mystream 0`              |
+| XLEN          | Gets the length of a stream                  | `XLEN mystream`                                 |
+| XRANGE        | Gets entries within a range of IDs           | `XRANGE mystream 0 +`                           |
+| XDEL          | Removes one or more entries from a stream    | `XDEL mystream 1526569495637-0`                 |
+
+---
+
+### **Pub/Sub Commands**
 
 | **Command**   | **Description**              | **Usage Example**                                |
 |---------------|------------------------------|-------------------------------------------------|
@@ -98,54 +207,47 @@ Lua Script allows you to run custom scripts directly on the Redis server.
 | SUBSCRIBE     | Subscribes to a channel      | `SUBSCRIBE mychannel`                           |
 | UNSUBSCRIBE   | Unsubscribes from a channel  | `UNSUBSCRIBE mychannel`                         |
 
-### LUA Script Commands
+---
 
-| **Command** | **Description**                                         | **Usage Example**                                           |
-|-------------|---------------------------------------------------------|------------------------------------------------------------|
-| EVAL        | Evaluates a Lua script                                  | `EVAL "return redis.call('SET', KEYS[1], ARGV[1])" 1 mykey "value"` |
-| EVALSHA     | Evaluates a Lua script using the SHA1 hash of the script| `EVALSHA <sha1-hash> 1 mykey "value"`                       |
+### **Transactions Commands**
 
-### Hashes Commands
+| **Command**   | **Description**                                      | **Usage Example**                                |
+|---------------|------------------------------------------------------|-------------------------------------------------|
+| MULTI         | Marks the start of a transaction block               | `MULTI`                                         |
+| EXEC          | Executes all commands issued after MULTI             | `SET key1 "val1"`<br>`SET key2 "val2"`<br>`EXEC`|
+| DISCARD       | Discards all commands issued after MULTI             | `MULTI`<br>`SET key1 "val1"`<br>`DISCARD`       |
 
-| **Command** | **Description**                        | **Usage Example**                                |
-|-------------|----------------------------------------|-------------------------------------------------|
-| HSET        | Sets the value of a field in a hash    | `HSET myhash field1 "value1"`                   |
-| HGET        | Gets the value of a field in a hash    | `HGET myhash field1`                            |
-| HDEL        | Deletes a field in a hash              | `HDEL myhash field1`                            |
+---
 
-### Lists Commands
+### **Scripting (Lua) Commands**
 
-| **Command** | **Description**                                  | **Usage Example**                                |
-|-------------|--------------------------------------------------|-------------------------------------------------|
-| LPUSH       | Pushes a value onto the head of a list           | `LPUSH mylist "value1"`                         |
-| RPUSH       | Pushes a value onto the tail of a list           | `RPUSH mylist "value2"`                         |
-| LPOP        | Pops a value from the head of a list             | `LPOP mylist`                                   |
-| RPOP        | Pops a value from the tail of a list             | `RPOP mylist`                                   |
+| **Command**   | **Description**                                  | **Usage Example**                               |
+|---------------|--------------------------------------------------|-------------------------------------------------|
+| EVAL          | Evaluates a Lua script                           | `EVAL "return redis.call('SET', KEYS[1], ARGV[1])" 1 mykey "value"` |
+| EVALSHA       | Evaluates a Lua script using SHA1 hash           | `EVALSHA sha1 1 mykey "value"`                  |
+| SCRIPT LOAD   | Loads a Lua script into Redis                    | `SCRIPT LOAD "return redis.call('GET', KEYS[1])"` |
+| SCRIPT FLUSH  | Removes all cached Lua scripts                   | `SCRIPT FLUSH`                                  |
+| SCRIPT KILL   | Kills the currently executing Lua script         | `SCRIPT KILL`                                   |
 
-### Sets Commands
+---
 
-| **Command** | **Description**                                  | **Usage Example**                                |
-|-------------|--------------------------------------------------|-------------------------------------------------|
-| SADD        | Adds a member to a set                           | `SADD myset "member1"`                          |
-| SREM        | Removes a member from a set                      | `SREM myset "member1"`                          |
-| SMEMBERS    | Gets all the members in a set                    | `SMEMBERS myset`                                |
+### **Key Management Commands**
 
-### Sorted Sets Commands
+| **Command**   | **Description**                          | **Usage Example**                               |
+|---------------|------------------------------------------|-------------------------------------------------|
+| EXISTS        | Checks if a key exists                   | `EXISTS mykey`                                  |
+| EXPIRE        | Sets a timeout on a key                  | `EXPIRE mykey 60`                               |
+| PERSIST       | Removes the timeout from a key           |
 
-| **Command** | **Description**                                                                | **Usage Example**                                |
-|-------------|--------------------------------------------------------------------------------|-------------------------------------------------|
-| ZADD        | Adds a member to a sorted set, or updates its score if it already exists        | `ZADD myzset 1 "member1"`                       |
-| ZRANGE      | Returns a range of members in a sorted set, by index                           | `ZRANGE myzset 0 -1`                            |
-| ZREM        | Removes a member from a sorted set                                             | `ZREM myzset "member1"`                         |
+ `PERSIST mykey`                                 |
+| RENAME        | Renames a key                            | `RENAME oldkey newkey`                          |
+| KEYS          | Finds all keys matching a pattern        | `KEYS pattern*`                                 |
+| TYPE          | Gets the data type of a key              | `TYPE mykey`                                    |
+| SCAN          | Iterates through keys                    | `SCAN 0 MATCH pattern* COUNT 100`               |
 
-### Utility Commands
+---
 
-| **Command** | **Description**                                               | **Usage Example**                                |
-|-------------|---------------------------------------------------------------|-------------------------------------------------|
-| INFO        | Provides information and statistics about the server          | `INFO`                                          |
-| PING        | Checks if the server is running                               | `PING`                                          |
-| FLUSHDB     | Deletes all keys in the current database                      | `FLUSHDB`                                       |
-| FLUSHALL    | Deletes all keys in all databases                             | `FLUSHALL`                                      |
+This covers all major Redis commands in categorized markdown tables.
 
 ## Competitors
 Memcached
@@ -196,18 +298,242 @@ They are usually classified under **four models** based on the number of publish
 - Event-driven architectures Applications
 - News updates and alerts
 
+## Integration Example (in node app)
 
-## Famous Questions
+> Find the complete redis.js file inside repo (redis_implementation/node/redis.js)
+
+#### Step 1. Install the Redis in your existing project
+   ```bash
+   npm install redis
+   ```
+#### Step 2. Initilization the redis
+Now, we have to initialize your redis in our application. We can create the separate file for redis (redis_db.js) or use index.js. Below is the example of How to initialize redis.
+
+```javascript
+// middlewares/redis.js
+const { createClient } = require("redis");
+
+let redisClient = undefined;
+async function initializeRedisClient() {
+  let redisURL = process.env.REDIS_URI // localhost:6379 or for production we can redis cloud endpoint
+  if (redisURL) {
+    redisClient = createClient({ url: redisURL }).on("error", (e) => {
+      console.error(`Failed to create the Redis client:`);
+      console.error(e);
+    });
+
+    try {
+      await redisClient.connect();
+      console.log(`Connected to Redis successfully!`);
+    } catch (e) {
+      console.error(`Connection to Redis failed with error:`);
+      console.error(e);
+    }
+  }
+}
+
+function isRedisWorking() {
+  // verify wheter there is an active connection
+  // to a Redis server or not
+  return !!redisClient?.isOpen;
+}
+```
+#### Step 3. Define the Redis Key Generation Logic with Hash Key
+
+When the Node.js server receives a request for an exposed endpoint, Express intercepts it and translates it into the req object. Thus, a request is nothing more than a JavaScript object at the application level.
+
+If you follow that approach,Let's say /api/v1/users?offset=10&page=1 and /api/v1/users?page=1&offeset=1 will produce two different keys. However, those are exactly the same API call.
+
+A more effective solution is to rely on object-hash, a popular npm package for generating order-insensitive, consistent, and reliable hashe
+
+```
+npm install object-hash
+```
+
+```javascript
+// middlewares/redis.js
+const hash = require("object-hash");
+
+function requestToKey(req) {
+  // build a custom object to use as part of the Redis key
+  const reqDataToHash = {
+    query: req.query,
+    body: req.body,
+  };
+
+  // keys on a Redis client
+  return `${req.path}@${hash.sha1(reqDataToHash)}`;
+}
+```
+#### Step 4. Add Read/ Write operation for redis
+
+Now, we have to add the function to read/write in the redis.But before direct writing, we **Compress it Before Storing It in Redis**. The approach to implementing the caching layer in Node.js presented above is great, but it has one major drawback. JSON is not the most byte-efficient data format. Storing raw data directly in Redis is good for readability, but it comes at the cost of memory usage.
+
+To avoid that, you can compress the raw response produced by the server before writing it to Redis and then decompress it after reading it accordingly. All you have to do is add a compression option to your writeData() and readData() functions and use the Node.js built zlib library as below:
+
+```javascript
+// middlewares/redis.js
+
+/**
+ * options is an object that involves the following fields:
+
+   {
+      EX, // the specified expire time in seconds
+      PX, // the specified expire time in milliseconds
+      EXAT, // the specified Unix time at which the key will expire, in seconds
+      PXAT, // the specified Unix time at which the key will expire, in milliseconds
+      NX, // write the data only if the key does not already exist
+      XX, // write the data only if the key already exists
+      KEEPTTL, // retain the TTL associated with the key
+      GET, // return the old string stored at key, or "undefined" if key did not exist
+   }
+*/
+async function writeData(key, data, options, compress) {
+   
+  if (isRedisWorking()) {
+    let dataToCache = data;
+    if (compress) {
+      // compress the value with ZLIB to save RAM
+      dataToCache = zlib.deflateSync(data).toString("base64");
+    }
+
+    try {
+      await redisClient.set(key, dataToCache, options);
+    } catch (e) {
+      console.error(`Failed to cache data for key=${key}`, e);
+    }
+  }
+}
+```
+**Simarlarly Read Redis**
+```javascript
+async function readData(key, compressed) {
+  let cachedValue = undefined;
+  if (isRedisWorking()) {
+    cachedValue = await redisClient.get(key);
+    if (cachedValue) {
+      if (compressed) {
+        // decompress the cached value with ZLIB
+        return zlib.inflateSync(Buffer.from(cachedValue, "base64")).toString();
+      } else {
+        return cachedValue;
+      }
+    }
+  }
+
+  return cachedValue;
+}
+```
+
+#### Step 5. Addinng middleware for compressing data for optimization
+The approach to implementing the caching layer in Node.js presented above is great, but it has one major drawback. JSON is not the most byte-efficient data format. Storing raw data directly in Redis is good for readability, but it comes at the cost of memory usage.
+
+To avoid that, you can compress the raw response produced by the server before writing it to Redis and then decompress it after reading it accordingly. All you have to do is add a compression option to your writeData() and readData() functions and use the Node.js built zlib library as below:
+
+```javascript
+function redisCachingMiddleware(
+  options = {
+    EX: 21600, // 6h
+  },
+  compression = true
+) {
+  return async (req, res, next) => {
+    if (isRedisWorking()) {
+      const key = requestToKey(req);
+      const cachedValue = await readData(key, compression);
+      if (cachedValue) {
+        try {          
+          return res.json(JSON.parse(cachedValue));
+        } catch {
+          return res.send(cachedValue);
+        }
+      } else {
+        const oldSend = res.send;
+        res.send = function (data) {
+          res.send = oldSend;
+
+          if (res.statusCode.toString().startsWith("2")) {
+            writeData(key, data, options, compression).then();
+          }
+
+          return res.send(data);
+        };
+
+        next();
+      }
+    } else {
+      next();
+    }
+  };
+}
+```
+#### Step 6. Register the Middleware to the Routes You Want to Cache
+
+#### Step 7. Add the redis in the index.js
+```javascript
+app.get("/api/", redisCachingMiddleware(), {text: "Damn Redis"});
+```
+**Final index.js**
+```javascript
+// index.js
+
+const express = require("express");
+require("dotenv").config();
+const {
+  initializeRedisClient,
+  redisCachingMiddleware,
+} = require("./src/middlewares/redis");
+
+async function initializeExpressServer() {
+  const app = express();
+  app.use(express.json());
+
+  // connect to Redis
+  await initializeRedisClient();
+
+  // add middleware
+  app.get("/api/", redisCachingMiddleware(), {text: "Damn Redis"});
+
+  const port = 8000;
+  app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+  });
+}
+
+initializeExpressServer()
+  .then()
+  .catch((e) => console.error(e));
+```
+
+
+#### Project Folder Structure
+```
+├── node_modules/
+├── src/
+│    ├── middlewares/
+│    │    └── redis.js
+│    └── index.js
+├── .env
+├── package-lock.json
+├── package.json
+└── README.md
+```
+
+
+## Follow up Questions
 
 1. List the main operation keys of Redis in detail.
 2. How can the durability of Redis be enhanced?
+   > - We should call Fsysnc() with every passing second despite the 1-second data loss when the system gets failed.
+   >  - We should call Fsysnc() when a new command gets added to the append log file.
+   
 3. How can the Redis be used with the any application? Give example in sanic!
 4. How can a Redis database be emptied?
 5. Mention and describe some commands of Redis
 6. Explain REPL and Redis-CLI.
 7. What is meant by hashes in Redis?
 8. What is meant by data modeling in Redis?
-9. How can a Redis database be moved from one server to another server?
+9.  How can a Redis database be moved from one server to another server?
 10. How can the array data be obtained from Redis?
 11. What is meant by "Redis is Binary Safe"?
 12. Which things should be kept in mind while using Redis?
